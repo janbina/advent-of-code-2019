@@ -1,10 +1,8 @@
 package main
 
 import (
-	"bufio"
+	"aoc19/utils"
 	"fmt"
-	"os"
-	"strconv"
 )
 
 func main() {
@@ -13,7 +11,7 @@ func main() {
 }
 
 func part1() {
-	modules := readNumbers("input.txt")
+	modules := utils.ReadNumbers("input.txt")
 
 	totalFuel := 0
 	for _, module := range modules {
@@ -24,7 +22,7 @@ func part1() {
 }
 
 func part2() {
-	modules := readNumbers("input.txt")
+	modules := utils.ReadNumbers("input.txt")
 
 	totalFuel := 0
 	for _, module := range modules {
@@ -50,31 +48,4 @@ func fuelForModuleP2(module int) int {
 
 func fuelForMass(mass int) int {
 	return mass/3 - 2
-}
-
-func readNumbers(filename string) []int {
-	file, err := os.Open(filename)
-	check(err)
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanWords)
-
-	var numbers []int
-	for scanner.Scan() {
-		numbers = append(numbers, toInt(scanner.Text()))
-	}
-	return numbers
-}
-
-func toInt(s string) int {
-	result, err := strconv.Atoi(s)
-	check(err)
-	return result
-}
-
-func check(err error) {
-	if err != nil {
-		panic(err)
-	}
 }
