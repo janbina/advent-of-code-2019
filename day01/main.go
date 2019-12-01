@@ -37,13 +37,13 @@ func fuelForModuleP1(module int) int {
 }
 
 func fuelForModuleP2(module int) int {
+	totalFuel := 0
 	fuel := fuelForMass(module)
-	added := fuelForMass(fuel)
-	for added > 0 {
-		fuel += added
-		added = fuelForMass(added)
+	for fuel > 0 {
+		totalFuel += fuel
+		fuel = fuelForMass(fuel)
 	}
-	return fuel
+	return totalFuel
 }
 
 func fuelForMass(mass int) int {
