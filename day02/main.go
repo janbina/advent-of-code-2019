@@ -38,16 +38,16 @@ func runProgram(mem []int, noun int, verb int) int {
 	position := 0
 
 	for {
-		command := mem[position]
-		if command == 99 {
-			break
-		} else if command == 1 {
+		switch mem[position] {
+		case 1:
 			mem[mem[position+3]] = mem[mem[position+1]] + mem[mem[position+2]]
-		} else if command == 2 {
+		case 2:
 			mem[mem[position+3]] = mem[mem[position+1]] * mem[mem[position+2]]
+		case 99:
+			return mem[0]
+		default:
+			panic("Invalid command")
 		}
 		position += 4
 	}
-
-	return mem[0]
 }
