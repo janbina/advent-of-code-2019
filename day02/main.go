@@ -35,9 +35,8 @@ func part2() {
 func runProgram(mem []int, noun int, verb int) int {
 	mem[1] = noun
 	mem[2] = verb
-	i := 0
 
-	for {
+	for i := 0; ; i += 4 {
 		switch mem[i] {
 		case 1:
 			mem[mem[i+3]] = mem[mem[i+1]] + mem[mem[i+2]]
@@ -48,6 +47,5 @@ func runProgram(mem []int, noun int, verb int) int {
 		default:
 			panic("Invalid command")
 		}
-		i += 4
 	}
 }
