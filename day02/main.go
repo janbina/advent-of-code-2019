@@ -19,10 +19,11 @@ func part1() {
 }
 
 func part2() {
+	ints := utils.ReadNumbers2("input.txt")
+
 	for noun := 0; noun < 100; noun++ {
 		for verb := 0; verb < 100; verb++ {
-			ints := utils.ReadNumbers2("input.txt")
-			out := runProgram(ints, noun, verb)
+			out := runProgram(utils.CopyInts(ints), noun, verb)
 			if out == 19690720 {
 				fmt.Println("Noun =", noun, "verb =", verb, "answer =", noun*100+verb)
 				return
