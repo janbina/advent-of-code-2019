@@ -35,19 +35,19 @@ func part2() {
 func runProgram(mem []int, noun int, verb int) int {
 	mem[1] = noun
 	mem[2] = verb
-	position := 0
+	i := 0
 
 	for {
-		switch mem[position] {
+		switch mem[i] {
 		case 1:
-			mem[mem[position+3]] = mem[mem[position+1]] + mem[mem[position+2]]
+			mem[mem[i+3]] = mem[mem[i+1]] + mem[mem[i+2]]
 		case 2:
-			mem[mem[position+3]] = mem[mem[position+1]] * mem[mem[position+2]]
+			mem[mem[i+3]] = mem[mem[i+1]] * mem[mem[i+2]]
 		case 99:
 			return mem[0]
 		default:
 			panic("Invalid command")
 		}
-		position += 4
+		i += 4
 	}
 }
