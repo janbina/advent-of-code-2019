@@ -5,3 +5,11 @@ func CopyInts(arr []int) []int {
 	copy(r, arr)
 	return r
 }
+
+func StringsToInts(arr []string) []int {
+	r := make([]int, len(arr))
+	for i, s := range arr {
+		r[i] = ToInt(s)
+	}
+	return r
+}

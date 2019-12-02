@@ -10,8 +10,13 @@ func main() {
 	part2()
 }
 
+func getInput() []int {
+	lines := utils.ReadLines("input.txt")
+	return utils.StringsToInts(lines)
+}
+
 func part1() {
-	modules := utils.ReadNumbers("input.txt")
+	modules := getInput()
 
 	totalFuel := 0
 	for _, module := range modules {
@@ -22,7 +27,7 @@ func part1() {
 }
 
 func part2() {
-	modules := utils.ReadNumbers("input.txt")
+	modules := getInput()
 
 	totalFuel := 0
 	for _, module := range modules {
