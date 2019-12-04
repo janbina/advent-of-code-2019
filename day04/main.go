@@ -15,9 +15,8 @@ func isValidP1(code string) bool {
 	for i := 1; i < len(code); i++ {
 		if code[i-1] > code[i] {
 			return false
-		} else if code[i-1] == code[i] {
-			flag = true
 		}
+		flag = flag || code[i-1] == code[i]
 	}
 	return flag
 }
@@ -31,16 +30,11 @@ func isValidP2(code string) bool {
 		} else if code[i-1] == code[i] {
 			same++
 		} else {
-			if same == 2 {
-				flag = true
-			}
+			flag = flag || same == 2
 			same = 1
 		}
 	}
-	if same == 2 {
-		flag = true
-	}
-	return flag
+	return flag || same == 2
 }
 
 func part12() {
