@@ -11,27 +11,24 @@ func getInput() (int, int) {
 }
 
 func isValidP1(code string) bool {
-	var prev byte = 0
 	flag := false
-	for i := 0; i < len(code); i++ {
-		if prev > code[i] {
+	for i := 1; i < len(code); i++ {
+		if code[i-1] > code[i] {
 			return false
-		} else if prev == code[i] {
+		} else if code[i-1] == code[i] {
 			flag = true
 		}
-		prev = code[i]
 	}
 	return flag
 }
 
 func isValidP2(code string) bool {
-	var prev byte = 0
 	flag := false
 	same := 1
-	for i := 0; i < len(code); i++ {
-		if prev > code[i] {
+	for i := 1; i < len(code); i++ {
+		if code[i-1] > code[i] {
 			return false
-		} else if prev == code[i] {
+		} else if code[i-1] == code[i] {
 			same++
 		} else {
 			if same == 2 {
@@ -39,7 +36,6 @@ func isValidP2(code string) bool {
 			}
 			same = 1
 		}
-		prev = code[i]
 	}
 	if same == 2 {
 		flag = true
