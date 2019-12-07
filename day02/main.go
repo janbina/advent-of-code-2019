@@ -1,6 +1,7 @@
 package main
 
 import (
+	"aoc19/common"
 	"aoc19/utils"
 	"fmt"
 	"strings"
@@ -20,9 +21,12 @@ func getInput() []int {
 func part1() {
 	ints := getInput()
 
-	out := runProgram(ints, 12, 2)
+	ints[1] = 12
+	ints[2] = 2
 
-	fmt.Println("Output =", out)
+	common.RunIntcode(ints, nil)
+
+	fmt.Println("Output =", ints[0])
 }
 
 func part2() {
@@ -30,29 +34,14 @@ func part2() {
 
 	for noun := 0; noun < 100; noun++ {
 		for verb := 0; verb < 100; verb++ {
-			out := runProgram(utils.CopyInts(ints), noun, verb)
-			if out == 19690720 {
+			mem := utils.CopyInts(ints)
+			mem[1] = noun
+			mem[2] = verb
+			common.RunIntcode(mem, nil)
+			if mem[0] == 19690720 {
 				fmt.Println("Noun =", noun, "verb =", verb, "answer =", noun*100+verb)
 				return
 			}
-		}
-	}
-}
-
-func runProgram(mem []int, noun int, verb int) int {
-	mem[1] = noun
-	mem[2] = verb
-
-	for i := 0; ; i += 4 {
-		switch mem[i] {
-		case 1:
-			mem[mem[i+3]] = mem[mem[i+1]] + mem[mem[i+2]]
-		case 2:
-			mem[mem[i+3]] = mem[mem[i+1]] * mem[mem[i+2]]
-		case 99:
-			return mem[0]
-		default:
-			panic("Invalid command")
 		}
 	}
 }
