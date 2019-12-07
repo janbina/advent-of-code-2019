@@ -12,9 +12,8 @@ func getVal(mem []int, modes [3]int, ip int, offset int) int {
 	}
 }
 
-func RunIntcode(mem []int, ip int, input []int) (int, []int) {
-	inCnt := 0
-	var output []int
+func RunIntcode(mem []int, in chan int, out chan int, done chan struct{}) {
+	ip := 0
 
 	for {
 		opCode, modes := getOpCodeAndModes(mem[ip])
@@ -27,14 +26,12 @@ func RunIntcode(mem []int, ip int, input []int) (int, []int) {
 			mem[mem[ip+3]] = getVal(mem, modes, ip, 0) * getVal(mem, modes, ip, 1)
 			ip += 4
 		case 3:
-			if inCnt >= len(input) {
-				return ip, output
-			}
-			mem[mem[ip+1]] = input[inCnt]
-			inCnt++
+			mem[mem[ip+1]] = <-in
 			ip += 2
 		case 4:
-			output = append(output, getVal(mem, modes, ip, 0))
+			if out != nil {
+				out <- getVal(mem, modes, ip, 0)
+			}
 			ip += 2
 		case 5:
 			if getVal(mem, modes, ip, 0) != 0 {
@@ -63,7 +60,11 @@ func RunIntcode(mem []int, ip int, input []int) (int, []int) {
 			}
 			ip += 4
 		case 99:
-			return ip, output
+			if out != nil {
+				close(out)
+			}
+			done <- struct{}{}
+			return
 		default:
 			panic("Invalid command")
 		}

@@ -30,38 +30,25 @@ func part2() {
 	fmt.Println(findMaxSignal(program, []int{5, 6, 7, 8, 9}))
 }
 
-type module struct {
-	mem []int
-	ip  int
-}
-
-func (m *module) run(input []int) []int {
-	nIP, out := common.RunIntcode(m.mem, m.ip, input)
-	m.ip = nIP
-	return out
-}
-
 func findMaxSignal(program []int, settings []int) int {
 	maxSignal := 0
 
 	utils.WithPermutation(settings, func(p []int) {
-		var modules []*module
-		signal := 0
-		for i := range p {
-			mem := utils.CopyInts(program)
-			mod := module{mem, 0}
-			modules = append(modules, &mod)
-			signal = mod.run([]int{p[i], signal})[0]
+		chans := []chan int{}
+		for range p {
+			chans = append(chans, make(chan int))
 		}
-		for i := 0; true; i++ {
-			out := modules[i%len(modules)].run([]int{signal})
-			if len(out) == 0 {
-				break
-			}
-			signal = out[0]
+		done := make(chan struct{})
+		for i, v := range p {
+			go common.RunIntcode(utils.CopyInts(program), chans[i], chans[(i+1)%len(p)], done)
+			chans[i] <- v
 		}
-		if signal > maxSignal {
-			maxSignal = signal
+		chans[0] <- 0
+		<-done
+
+		out := <-chans[0]
+		if out > maxSignal {
+			maxSignal = out
 		}
 	})
 

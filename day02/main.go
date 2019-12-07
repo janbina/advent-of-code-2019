@@ -24,7 +24,9 @@ func part1() {
 	ints[1] = 12
 	ints[2] = 2
 
-	common.RunIntcode(ints, 0, nil)
+	done := make(chan struct{})
+	go common.RunIntcode(ints, nil, nil, done)
+	<-done
 
 	fmt.Println("Output =", ints[0])
 }
@@ -37,7 +39,9 @@ func part2() {
 			mem := utils.CopyInts(ints)
 			mem[1] = noun
 			mem[2] = verb
-			common.RunIntcode(mem, 0, nil)
+			done := make(chan struct{})
+			go common.RunIntcode(mem, nil, nil, done)
+			<-done
 			if mem[0] == 19690720 {
 				fmt.Println("Noun =", noun, "verb =", verb, "answer =", noun*100+verb)
 				return
