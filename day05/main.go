@@ -21,13 +21,13 @@ func getInput() []int {
 func part1() {
 	ints := getInput()
 
-	output := common.RunIntcode(ints, []int{1})
+	_, output := common.RunIntcode(ints, 0, []int{1})
 	fmt.Println(output)
 }
 
 func part2() {
 	ints := getInput()
 
-	output := common.RunIntcode(ints, []int{5})
+	_, output := common.RunIntcode(ints, 0, []int{5})
 	fmt.Println(output)
 }

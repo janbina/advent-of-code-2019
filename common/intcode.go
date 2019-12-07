@@ -12,8 +12,7 @@ func getVal(mem []int, modes [3]int, ip int, offset int) int {
 	}
 }
 
-func RunIntcode(mem []int, input []int) []int {
-	ip := 0
+func RunIntcode(mem []int, ip int, input []int) (int, []int) {
 	inCnt := 0
 	var output []int
 
@@ -28,6 +27,9 @@ func RunIntcode(mem []int, input []int) []int {
 			mem[mem[ip+3]] = getVal(mem, modes, ip, 0) * getVal(mem, modes, ip, 1)
 			ip += 4
 		case 3:
+			if inCnt >= len(input) {
+				return ip, output
+			}
 			mem[mem[ip+1]] = input[inCnt]
 			inCnt++
 			ip += 2
@@ -61,7 +63,7 @@ func RunIntcode(mem []int, input []int) []int {
 			}
 			ip += 4
 		case 99:
-			return output
+			return ip, output
 		default:
 			panic("Invalid command")
 		}
