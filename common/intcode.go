@@ -4,61 +4,75 @@ func getOpCodeAndModes(i int) (int, [3]int) {
 	return i % 100, [3]int{(i / 100) % 10, (i / 1000) % 10, (i / 10000) % 10}
 }
 
-func getVal(mem []int, modes [3]int, ip int, offset int) int {
-	if modes[offset] == 1 {
+func getOpAddr(mem map[int64]int64, modes [3]int, ip int64, offset int64, relativeBase int64) int64 {
+	switch modes[offset] {
+	case 0:
 		return mem[ip+offset+1]
-	} else {
-		return mem[mem[ip+offset+1]]
+	case 1:
+		return ip + offset + 1
+	case 2:
+		return relativeBase + mem[ip+offset+1]
+	default:
+		panic("Invalid mode")
 	}
 }
 
-func RunIntcode(mem []int, in chan int, out chan int, done chan struct{}) {
-	ip := 0
+// RunIntcode program with memory *mem* and input provided by *in* channel
+// Output will be written to *out* channel and termination signalized to *done* channel
+func RunIntcode(mem map[int64]int64, in chan int64, out chan int64, done chan struct{}) {
+	var ip int64 = 0
+	var relativeBase int64 = 0
 
 	for {
-		opCode, modes := getOpCodeAndModes(mem[ip])
+		opCode, modes := getOpCodeAndModes(int(mem[ip]))
+		op0addr := getOpAddr(mem, modes, ip, 0, relativeBase)
+		op1addr := getOpAddr(mem, modes, ip, 1, relativeBase)
+		op2addr := getOpAddr(mem, modes, ip, 2, relativeBase)
 
 		switch opCode {
 		case 1:
-			mem[mem[ip+3]] = getVal(mem, modes, ip, 0) + getVal(mem, modes, ip, 1)
+			mem[op2addr] = mem[op0addr] + mem[op1addr]
 			ip += 4
 		case 2:
-			mem[mem[ip+3]] = getVal(mem, modes, ip, 0) * getVal(mem, modes, ip, 1)
+			mem[op2addr] = mem[op0addr] * mem[op1addr]
 			ip += 4
 		case 3:
-			mem[mem[ip+1]] = <-in
+			mem[op0addr] = <-in
 			ip += 2
 		case 4:
 			if out != nil {
-				out <- getVal(mem, modes, ip, 0)
+				out <- mem[op0addr]
 			}
 			ip += 2
 		case 5:
-			if getVal(mem, modes, ip, 0) != 0 {
-				ip = getVal(mem, modes, ip, 1)
+			if mem[op0addr] != 0 {
+				ip = mem[op1addr]
 			} else {
 				ip += 3
 			}
 		case 6:
-			if getVal(mem, modes, ip, 0) == 0 {
-				ip = getVal(mem, modes, ip, 1)
+			if mem[op0addr] == 0 {
+				ip = mem[op1addr]
 			} else {
 				ip += 3
 			}
 		case 7:
-			if getVal(mem, modes, ip, 0) < getVal(mem, modes, ip, 1) {
-				mem[mem[ip+3]] = 1
+			if mem[op0addr] < mem[op1addr] {
+				mem[op2addr] = 1
 			} else {
-				mem[mem[ip+3]] = 0
+				mem[op2addr] = 0
 			}
 			ip += 4
 		case 8:
-			if getVal(mem, modes, ip, 0) == getVal(mem, modes, ip, 1) {
-				mem[mem[ip+3]] = 1
+			if mem[op0addr] == mem[op1addr] {
+				mem[op2addr] = 1
 			} else {
-				mem[mem[ip+3]] = 0
+				mem[op2addr] = 0
 			}
 			ip += 4
+		case 9:
+			relativeBase += mem[op0addr]
+			ip += 2
 		case 99:
 			if out != nil {
 				close(out)
@@ -69,4 +83,27 @@ func RunIntcode(mem []int, in chan int, out chan int, done chan struct{}) {
 			panic("Invalid command")
 		}
 	}
+}
+
+// RunIntcodeSimple is wrapper over RunIntcode without channels
+// Input provided as a slice, output returned as a slice
+func RunIntcodeSimple(mem map[int64]int64, input []int64) []int64 {
+	var output []int64
+
+	in := make(chan int64)
+	out := make(chan int64)
+	done := make(chan struct{})
+
+	go RunIntcode(mem, in, out, done)
+
+	for _, i := range input {
+		in <- i
+	}
+
+	for v := range out {
+		output = append(output, v)
+	}
+	<-done
+
+	return output
 }

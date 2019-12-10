@@ -23,14 +23,12 @@ func part1() {
 	ints := getInput()
 
 	out := common.RunIntcodeSimple(ints, []int64{1})
-
-	fmt.Println(out[len(out)-1])
+	fmt.Println(out[0])
 }
 
 func part2() {
 	ints := getInput()
 
-	out := common.RunIntcodeSimple(ints, []int64{5})
-
+	out := common.RunIntcodeSimple(ints, []int64{2})
 	fmt.Println(out[0])
 }

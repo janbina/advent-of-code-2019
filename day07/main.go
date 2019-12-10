@@ -12,10 +12,11 @@ func main() {
 	part2()
 }
 
-func getInput() []int {
+func getInput() map[int64]int64 {
 	lines := utils.ReadLines("input.txt")
 	strings := strings.Split(lines[0], ",")
-	return utils.StringsToInts(strings)
+	ints := utils.StringsToInts64(strings)
+	return utils.IntSliceToMap(ints)
 }
 
 func part1() {
@@ -30,18 +31,18 @@ func part2() {
 	fmt.Println(findMaxSignal(program, []int{5, 6, 7, 8, 9}))
 }
 
-func findMaxSignal(program []int, settings []int) int {
-	maxSignal := 0
+func findMaxSignal(program map[int64]int64, settings []int) int64 {
+	var maxSignal int64
 
 	utils.WithPermutation(settings, func(p []int) {
-		chans := []chan int{}
+		chans := []chan int64{}
 		for range p {
-			chans = append(chans, make(chan int))
+			chans = append(chans, make(chan int64))
 		}
 		done := make(chan struct{})
 		for i, v := range p {
-			go common.RunIntcode(utils.CopyInts(program), chans[i], chans[(i+1)%len(p)], done)
-			chans[i] <- v
+			go common.RunIntcode(program, chans[i], chans[(i+1)%len(p)], done)
+			chans[i] <- int64(v)
 		}
 		chans[0] <- 0
 		<-done

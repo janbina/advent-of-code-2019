@@ -29,3 +29,9 @@ func ToInt(s string) int {
 	Check(err)
 	return result
 }
+
+func ToInt64(s string) int64 {
+	result, err := strconv.ParseInt(s, 10, 64)
+	Check(err)
+	return result
+}

@@ -12,23 +12,22 @@ func main() {
 	part2()
 }
 
-func getInput() []int {
+func getInput() []int64 {
 	lines := utils.ReadLines("input.txt")
 	strings := strings.Split(lines[0], ",")
-	return utils.StringsToInts(strings)
+	return utils.StringsToInts64(strings)
 }
 
 func part1() {
 	ints := getInput()
+	mem := utils.IntSliceToMap(ints)
 
 	ints[1] = 12
 	ints[2] = 2
 
-	done := make(chan struct{})
-	go common.RunIntcode(ints, nil, nil, done)
-	<-done
+	common.RunIntcodeSimple(mem, []int64{})
 
-	fmt.Println("Output =", ints[0])
+	fmt.Println(mem[0])
 }
 
 func part2() {
@@ -36,12 +35,10 @@ func part2() {
 
 	for noun := 0; noun < 100; noun++ {
 		for verb := 0; verb < 100; verb++ {
-			mem := utils.CopyInts(ints)
-			mem[1] = noun
-			mem[2] = verb
-			done := make(chan struct{})
-			go common.RunIntcode(mem, nil, nil, done)
-			<-done
+			ints[1] = int64(noun)
+			ints[2] = int64(verb)
+			mem := utils.IntSliceToMap(ints)
+			common.RunIntcodeSimple(mem, []int64{})
 			if mem[0] == 19690720 {
 				fmt.Println("Noun =", noun, "verb =", verb, "answer =", noun*100+verb)
 				return
