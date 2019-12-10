@@ -10,52 +10,58 @@ func main() {
 	part2()
 }
 
-func getInput() []string {
+type point struct {
+	x, y int
+}
+
+func getInput() map[point]bool {
 	lines := utils.ReadLines("input.txt")
-	return lines
+	asteroids := make(map[point]bool)
+	for x, line := range lines {
+		for y, c := range line {
+			if c == '#' {
+				asteroids[point{x, y}] = true
+			}
+		}
+	}
+	return asteroids
 }
 
 func part1() {
-	input := getInput()
+	asteroids := getInput()
+	var asteroidsArr []point
+	for k := range asteroids {
+		asteroidsArr = append(asteroidsArr, k)
+	}
 
-	counts := make([]int, len(input)*len(input[0]))
+	counts := make(map[point]int)
 
-	// for every position [x, y] on the map
-	for x, r := range input {
-		for y, c := range r {
-			// if it is asteroid on that position
-			if c == '#' {
-				// for every position [x2, y2] on the map
-				for x2, r2 := range input {
-					for y2, c2 := range r2 {
-						// if position [x, y] is not same as [x2, y2] and there is an asteroid
-						if (x != x2 || y != y2) && c2 == '#' {
-							if !isBlocked(input, x, y, x2, y2) {
-								counts[x*len(input)+y]++
-							}
-						}
-					}
-				}
+	for i, a1 := range asteroidsArr {
+		for j := i + 1; j < len(asteroidsArr); j++ {
+			a2 := asteroidsArr[j]
+			if !isBlocked(asteroids, a1, a2) {
+				counts[a1]++
+				counts[a2]++
 			}
 		}
 	}
 
 	max := 0
-	var x, y int
-	for i, c := range counts {
-		if c > max {
-			max = c
-			x = i / len(input)
-			y = i % len(input)
+	var best point
+	for k, v := range counts {
+		if v > max {
+			max = v
+			best = k
 		}
 	}
 
-	fmt.Println(max, x, y)
+	fmt.Println(max, best.x, best.y)
 }
 
-func isBlocked(input []string, x, y, x2, y2 int) bool {
-	difX := x2 - x
-	difY := y2 - y
+// returns true if there is an asteroid on the direct way between a and b
+func isBlocked(asteroids map[point]bool, a, b point) bool {
+	difX := b.x - a.x
+	difY := b.y - a.y
 
 	var gcd int
 	if difX == 0 || difY == 0 {
@@ -67,12 +73,12 @@ func isBlocked(input []string, x, y, x2, y2 int) bool {
 	difYY := difY / gcd
 
 	for {
-		x += difXX
-		y += difYY
-		if x == x2 && y == y2 {
+		a.x += difXX
+		a.y += difYY
+		if a == b {
 			return false
 		}
-		if input[x][y] == '#' {
+		if asteroids[a] {
 			return true
 		}
 	}
