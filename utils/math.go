@@ -30,3 +30,10 @@ func Abs(x int) int {
 func ManhattanDist(x1 int, x2 int, y1 int, y2 int) int {
 	return Abs(x1-x2) + Abs(y1-y2)
 }
+
+func Gcd(a int, b int) int {
+	for b != 0 {
+		a, b = b, a%b
+	}
+	return a
+}
