@@ -20,6 +20,10 @@ func getOpAddr(mem map[int64]int64, modes [3]int, ip int64, offset int64, relati
 // RunIntcode program with memory *mem* and input provided by *in* channel
 // Output will be written to *out* channel and termination signalized to *done* channel
 func RunIntcode(mem map[int64]int64, in chan int64, out chan int64, done chan struct{}) {
+	RunIntcodeInRequest(mem, in, nil, out, done)
+}
+
+func RunIntcodeInRequest(mem map[int64]int64, in chan int64, inRequest chan struct{}, out chan int64, done chan struct{}) {
 	var ip int64 = 0
 	var relativeBase int64 = 0
 
@@ -37,6 +41,9 @@ func RunIntcode(mem map[int64]int64, in chan int64, out chan int64, done chan st
 			mem[op2addr] = mem[op0addr] * mem[op1addr]
 			ip += 4
 		case 3:
+			if inRequest != nil {
+				inRequest <- struct{}{}
+			}
 			mem[op0addr] = <-in
 			ip += 2
 		case 4:
@@ -91,19 +98,23 @@ func RunIntcodeSimple(mem map[int64]int64, input []int64) []int64 {
 	var output []int64
 
 	in := make(chan int64)
+	inRequest := make(chan struct{})
 	out := make(chan int64)
 	done := make(chan struct{})
 
-	go RunIntcode(mem, in, out, done)
+	go RunIntcodeInRequest(mem, in, inRequest, out, done)
 
-	for _, i := range input {
-		in <- i
+	inCnt := 0
+
+	for {
+		select {
+		case <-inRequest:
+			in <- input[inCnt]
+			inCnt++
+		case x := <-out:
+			output = append(output, x)
+		case <-done:
+			return output
+		}
 	}
-
-	for v := range out {
-		output = append(output, v)
-	}
-	<-done
-
-	return output
 }
