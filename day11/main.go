@@ -1,9 +1,9 @@
 package main
 
 import (
-	"aoc19/common"
-	"aoc19/utils"
 	"fmt"
+	"github.com/janbina/advent-of-code-2019/common"
+	"github.com/janbina/advent-of-code-2019/utils"
 	"math"
 	"strings"
 )

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"aoc19/utils"
 	"fmt"
+	"github.com/janbina/advent-of-code-2019/utils"
 )
 
 func main() {
